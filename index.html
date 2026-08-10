@@ -88,7 +88,10 @@
 
     <main class="messages-wrap" id="messagesWrap" role="log" aria-live="polite">
       <div class="empty-state visual-home" id="emptyState">
+        <!-- Dynamic rain desactivada temporalmente.
         <canvas class="matrix-rain" id="matrixRain" aria-hidden="true"></canvas>
+        -->
+        <img class="hero-image" src="/hero.png" alt="" aria-hidden="true">
         <div class="mesh-character" id="meshCharacter" aria-hidden="true" hidden>
           <svg viewBox="0 0 231 289" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -3075,7 +3078,7 @@
     updateSendBtn();
     updateKataToggle();
     syncLessonTutorOffset();
-    initVisualHome();
+    // initVisualHome(); // Dynamic rain desactivada temporalmente.
     focusChatInput();
 
     if (window.lucide) {

@@ -490,6 +490,13 @@ select {
   border: 0;
 }
 
+.hero-image {
+  display: block;
+  width: min(560px, 82vw);
+  max-height: 72%;
+  object-fit: contain;
+}
+
 .matrix-rain {
   position: absolute;
   inset: 0;
