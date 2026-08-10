@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  CURATED_MODELS,
   handleChat,
+  handleModels,
   OPENCODE_FREE_MODELS,
   learningRecordsFromState,
   learningStateFromRecords,
@@ -44,7 +46,7 @@ test('chat forwards provider rate limits with a 70 second retry window', async (
       method: 'POST',
       body: {
         provider: 'groq',
-        model: 'test-model',
+        model: 'qwen/qwen3.6-27b',
         harness: 'normal',
         messages: [{ role: 'user', content: 'hola' }],
       },
@@ -75,7 +77,7 @@ test('chat also forwards a plain-text provider rate limit', async () => {
       method: 'POST',
       body: {
         provider: 'groq',
-        model: 'test-model',
+        model: 'qwen/qwen3.6-27b',
         harness: 'normal',
         messages: [{ role: 'user', content: 'hola' }],
       },
@@ -89,7 +91,7 @@ test('chat also forwards a plain-text provider rate limit', async () => {
   }
 });
 
-test('OpenCode Zen sends free models to its OpenAI-compatible endpoint', async () => {
+test('OpenCode Zen sends curated free models to its OpenAI-compatible endpoint', async () => {
   const originalFetch = globalThis.fetch;
   const originalKey = process.env.OPENCODE_API_KEY;
   let request;
@@ -107,7 +109,7 @@ test('OpenCode Zen sends free models to its OpenAI-compatible endpoint', async (
       method: 'POST',
       body: {
         provider: 'opencode',
-        model: 'big-pickle',
+        model: 'mimo-v2.5-free',
         harness: 'normal',
         messages: [{ role: 'user', content: 'hola' }],
       },
@@ -116,7 +118,7 @@ test('OpenCode Zen sends free models to its OpenAI-compatible endpoint', async (
     assert.equal(response.status, 200);
     assert.equal(request.url, 'https://opencode.ai/zen/v1/chat/completions');
     assert.equal(request.options.headers.Authorization, 'Bearer test-key');
-    assert.equal(JSON.parse(request.options.body).model, 'big-pickle');
+    assert.equal(JSON.parse(request.options.body).model, 'mimo-v2.5-free');
     assert.equal(JSON.parse(response.body).content, 'respuesta');
   } finally {
     globalThis.fetch = originalFetch;
@@ -125,7 +127,7 @@ test('OpenCode Zen sends free models to its OpenAI-compatible endpoint', async (
   }
 });
 
-test('OpenCode Zen rejects models outside the documented free list', async () => {
+test('chat rejects models outside the curated catalog', async () => {
   const originalKey = process.env.OPENCODE_API_KEY;
   process.env.OPENCODE_API_KEY = 'test-key';
 
@@ -136,7 +138,7 @@ test('OpenCode Zen rejects models outside the documented free list', async () =>
       method: 'POST',
       body: {
         provider: 'opencode',
-        model: 'gpt-5.6-sol',
+        model: 'big-pickle',
         harness: 'normal',
         messages: [{ role: 'user', content: 'hola' }],
       },
@@ -147,6 +149,15 @@ test('OpenCode Zen rejects models outside the documented free list', async () =>
     if (originalKey === undefined) delete process.env.OPENCODE_API_KEY;
     else process.env.OPENCODE_API_KEY = originalKey;
   }
+});
+
+test('models endpoint returns the fixed curated catalog in order', async () => {
+  const response = responseRecorder();
+  await handleModels({ method: 'GET' }, response);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(JSON.parse(response.body).providers,
+    Object.entries(CURATED_MODELS).map(([id, models]) => ({ id, models })));
 });
 
 test('model catalogs keep only free and chat-compatible entries', () => {
@@ -341,7 +352,7 @@ test('project evaluation prompt accepts ordered files without mandatory headers'
       method: 'POST',
       body: {
         provider: 'groq',
-        model: 'test-model',
+        model: 'qwen/qwen3.6-27b',
         intent: 'lesson_evaluate',
         evaluationContext: {
           lessonId: 'react-project',

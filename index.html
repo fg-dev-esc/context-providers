@@ -4,8 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>proyecto inferencia</title>
-  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+  <title>Umbral</title>
+  <meta name="description" content="rría de modelos funcionales.">
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -87,13 +88,27 @@
 
     <main class="messages-wrap" id="messagesWrap" role="log" aria-live="polite">
       <div class="empty-state" id="emptyState">
-        <!-- <h2>P R O Y E C T O I N F E R E N C I A</h2> -->
-        <div class="learning-dashboard" id="learningDashboard">
-          <span class="prompt-loading">Cargando cursos...</span>
+        <div class="umbral-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="umbral-spire" d="M60 3 54 15l6-3 6 3-6-12Z"/>
+            <path class="umbral-arch outer" d="M18 126V68C18 38 36 22 60 10c24 12 42 28 42 58v58"/>
+            <path class="umbral-arch inner" d="M31 126V70c0-21 12-35 29-47 17 12 29 26 29 47v56"/>
+            <path class="umbral-door" d="M43 126V72c0-14 7-25 17-35 10 10 17 21 17 35v54H43Z"/>
+            <path class="umbral-rib" d="M60 37v89M43 73 18 55m59 18 25-18M31 89 18 80m71 9 13-9"/>
+            <path class="umbral-ornament" d="M18 105 8 97l6 15-11 8 15-1m84-14 10-8-6 15 11 8-15-1"/>
+            <path class="umbral-threshold" d="M5 127h110M20 136h80M43 145h34"/>
+            <path class="umbral-sigil" d="m60 62 5 8-5 8-5-8 5-8Z"/>
+          </svg>
         </div>
-        <div class="empty-hints" id="promptTree" hidden>
-          <span class="prompt-loading">Cargando prompts...</span>
+        <div class="umbral-identity">
+          <h1>UMBRAL</h1>
+          <!--<p>curaduría de modelos adecuados para escribir código.</p>-->
         </div>
+        <!-- Dashboard educativo desactivado.
+        <div class="learning-dashboard" id="learningDashboard"></div>
+        -->
+        <div class="learning-dashboard" id="learningDashboard" hidden></div>
+        <div class="empty-hints" id="promptTree" hidden></div>
       </div>
     </main>
 
@@ -226,15 +241,23 @@
     ];
 
     const MODELS = [
-      { id: 'gpt-oss-120b', label: 'GPT OSS 120B', provider: 'cerebras', tag: 'Cerebras' },
-      { id: 'codestral-latest', label: 'Codestral', provider: 'mistral', tag: 'Mistral' },
-      { id: 'qwen/qwen3.6-27b', label: 'Qwen 3.6 27B', provider: 'groq', tag: 'Groq' },
-      { id: 'north-mini-code-1-0', label: 'North Mini Code 1.0', provider: 'cohere', tag: 'Cohere' },
-      { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash', provider: 'google', tag: 'Google' },
+      { id: 'gpt-oss-120b', label: 'gpt-oss-120b', provider: 'cerebras', tag: 'Cerebras' },
+      { id: 'gemini-flash-latest', label: 'gemini-flash-latest', provider: 'google', tag: 'Google' },
+      { id: 'zai-glm-4.7', label: 'zai-glm-4.7', provider: 'cerebras', tag: 'Cerebras' },
+      { id: 'mistral-small-latest', label: 'mistral-small-latest', provider: 'mistral', tag: 'Mistral' },
+      { id: 'devstral-latest', label: 'devstral-latest', provider: 'mistral', tag: 'Mistral' },
+      { id: 'north-mini-code-1-0', label: 'north-mini-code-1-0', provider: 'cohere', tag: 'Cohere' },
+      { id: 'command-a-reasoning-08-2025', label: 'command-a-reasoning-08-2025', provider: 'cohere', tag: 'Cohere' },
+      { id: 'mimo-v2.5-free', label: 'mimo-v2.5-free', provider: 'opencode', tag: 'OpenCode' },
+      { id: 'deepseek-v4-flash-free', label: 'deepseek-v4-flash-free', provider: 'opencode', tag: 'OpenCode' },
+      { id: 'north-mini-code-free', label: 'north-mini-code-free', provider: 'opencode', tag: 'OpenCode' },
+      { id: 'qwen/qwen3.6-27b', label: 'qwen/qwen3.6-27b', provider: 'groq', tag: 'Groq' },
+      { id: 'groq/compound-mini', label: 'groq/compound-mini', provider: 'groq', tag: 'Groq' },
+      { id: 'llama-3.1-8b-instant', label: 'llama-3.1-8b-instant', provider: 'groq', tag: 'Groq' },
+      { id: 'openai/gpt-oss-20b', label: 'openai/gpt-oss-20b', provider: 'groq', tag: 'Groq' },
     ];
 
     const MAX_IMAGES = 5;
-    const MODEL_FAVORITES_KEY = 'inferencia_model_favorites';
     const PROMPTS_FILE = '/prompts.json';
     const SOLUTION_UNLOCK_SCORE = 70;
     const API_RETRY_DELAY_MS = 70_000;
@@ -244,7 +267,6 @@
 
     let selectedModel = MODELS.find(m => m.id === 'gpt-oss-120b');
     let availableModels = [...MODELS];
-    let modelFavorites = loadModelFavorites();
     let messages = [];
     const undoneTurns = new Map();
     let attachedImages = [];
@@ -541,7 +563,7 @@
           month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
         const msgCount = (conv.messages || []).length;
-        
+
         return `
           <div class="conversation-item ${isActive ? 'active' : ''} ${index === keyboardConversationIndex ? 'keyboard-selected' : ''}" data-id="${escapeHtml(conv.id)}">
             <div class="conversation-content" tabindex="-1">
@@ -789,15 +811,6 @@
     }
 
     // Selector de modelos
-    function loadModelFavorites() {
-      try {
-        const value = JSON.parse(localStorage.getItem(MODEL_FAVORITES_KEY) || '[]');
-        return new Set(Array.isArray(value) ? value.filter(item => typeof item === 'string') : []);
-      } catch {
-        return new Set();
-      }
-    }
-
     function modelKey(model) {
       return `${model.provider}:${model.id}`;
     }
@@ -857,13 +870,7 @@
         const provider = PROVIDERS.find(item => item.id === model.provider);
         return !query || `${model.id} ${model.label} ${provider?.name || ''}`.toLowerCase().includes(query);
       });
-      const visibleByKey = new Map(visible.map(model => [modelKey(model), model]));
-      const favorites = [...modelFavorites].map(key => visibleByKey.get(key)).filter(Boolean);
-      const regular = [];
-      PROVIDERS.forEach(provider => {
-        regular.push(...visible.filter(model => model.provider === provider.id && !modelFavorites.has(modelKey(model))));
-      });
-      [...favorites, ...regular].forEach(model => dropdownBody.appendChild(createModelOption(model)));
+      visible.forEach(model => dropdownBody.appendChild(createModelOption(model)));
       if (!visible.length) {
         const empty = document.createElement('div');
         empty.className = 'model-empty';
@@ -884,26 +891,16 @@
           provider: id,
           tag: PROVIDERS.find(provider => provider.id === id)?.name || id,
         })));
-        const availableKeys = new Set(availableModels.map(modelKey));
-        modelFavorites = new Set([...modelFavorites].filter(key => availableKeys.has(key)));
-        localStorage.setItem(MODEL_FAVORITES_KEY, JSON.stringify([...modelFavorites]));
+        const curatedOrder = new Map(MODELS.map((model, index) => [modelKey(model), index]));
+        availableModels.sort((left, right) => curatedOrder.get(modelKey(left)) - curatedOrder.get(modelKey(right)));
+        if (!availableModels.some(model => modelKey(model) === modelKey(selectedModel))) {
+          selectedModel = availableModels[0] || MODELS[0];
+          updateModelDisplay();
+        }
         buildDropdown();
       } catch (error) {
         console.warn('No se pudo cargar el catalogo de modelos:', error);
       }
-    }
-
-    function toggleModelFavorite(model) {
-      const key = modelKey(model);
-      if (modelFavorites.has(key)) {
-        modelFavorites.delete(key);
-        showToast('Quitado de favoritos');
-      } else {
-        modelFavorites = new Set([key, ...modelFavorites]);
-        showToast('Añadido a favoritos');
-      }
-      localStorage.setItem(MODEL_FAVORITES_KEY, JSON.stringify([...modelFavorites]));
-      buildDropdown(key);
     }
 
     function selectModel(m) {
@@ -2583,7 +2580,7 @@
         typing.remove();
         messages.push({ role: 'assistant', content: reply, model: messageModel });
         appendMessage('assistant', reply, messageModel);
-        
+
         const conv = conversations.find(c => c.id === currentConversationId);
         if (conv) {
           if (!conv.title || conv.title === 'Nueva conversación') {
@@ -2921,17 +2918,6 @@
         return;
       }
 
-      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'f') {
-        if (e.target.matches('input, textarea, [contenteditable="true"]')) return;
-        e.preventDefault();
-        const focusedKey = modelDropdown.classList.contains('open')
-          ? document.activeElement?.dataset?.modelKey
-          : null;
-        const model = availableModels.find(item => modelKey(item) === focusedKey) || selectedModel;
-        if (model) toggleModelFavorite(model);
-        return;
-      }
-
       if (e.ctrlKey && e.altKey && e.key === 'Enter') {
         e.preventDefault();
         if (chatInput.value.trim()) handleSend();
@@ -2978,7 +2964,7 @@
     updateKataToggle();
     syncLessonTutorOffset();
     focusChatInput();
-    
+
     if (window.lucide) {
       lucide.createIcons();
       updateModelDisplay();
@@ -2986,7 +2972,7 @@
 
     async function bootstrap() {
       try {
-        await Promise.all([initDB(), loadPromptTree(), initLearning()]);
+        await initDB();
         loadConversationFromUrl();
       } finally {
         initialLoading.classList.add('hidden');

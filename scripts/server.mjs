@@ -21,16 +21,6 @@ const PROVIDERS = {
   opencode: { url: 'https://opencode.ai/zen/v1/chat/completions', key: 'OPENCODE_API_KEY' },
 };
 
-const MODEL_CATALOGS = {
-  groq: { url: 'https://api.groq.com/openai/v1/models', key: 'GROQ_API_KEY' },
-  // openrouter: { url: 'https://openrouter.ai/api/v1/models' },
-  opencode: { url: 'https://opencode.ai/zen/v1/models' },
-  google: { url: 'https://generativelanguage.googleapis.com/v1beta/models', key: 'GOOGLE_API_KEY', queryKey: true },
-  mistral: { url: 'https://api.mistral.ai/v1/models', key: 'MISTRAL_API_KEY' },
-  cohere: { url: 'https://api.cohere.com/v1/models?endpoint=chat&page_size=100', key: 'COHERE_API_KEY' },
-  cerebras: { url: 'https://api.cerebras.ai/v1/models', key: 'CEREBRAS_API_KEY' },
-};
-
 export const OPENCODE_FREE_MODELS = new Set([
   'big-pickle',
   'deepseek-v4-flash-free',
@@ -42,18 +32,14 @@ export const OPENCODE_FREE_MODELS = new Set([
   'nemotron-3-ultra-free',
 ]);
 
-const FALLBACK_MODELS = {
-  groq: ['qwen/qwen3.6-27b'],
-  openrouter: ['inclusionai/ling-3.0-flash:free'],
-  opencode: [...OPENCODE_FREE_MODELS],
-  google: ['gemini-pro-latest'],
-  mistral: ['codestral-latest'],
-  cohere: ['north-mini-code-1-0'],
-  cerebras: ['gpt-oss-120b'],
+export const CURATED_MODELS = {
+  cerebras: ['gpt-oss-120b', 'zai-glm-4.7'],
+  google: ['gemini-flash-latest'],
+  mistral: ['mistral-small-latest', 'devstral-latest'],
+  cohere: ['north-mini-code-1-0', 'command-a-reasoning-08-2025'],
+  opencode: ['mimo-v2.5-free', 'deepseek-v4-flash-free', 'north-mini-code-free'],
+  groq: ['qwen/qwen3.6-27b', 'groq/compound-mini', 'llama-3.1-8b-instant', 'openai/gpt-oss-20b'],
 };
-
-const MODEL_CATALOG_TTL_MS = 5 * 60 * 1000;
-let modelCatalogCache;
 
 const IMAGE_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
 const MAX_IMAGES = 5;
@@ -88,34 +74,8 @@ if (isMainModule()) {
 
 export async function handleModels(req, res) {
   if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);
-  const providers = await getModelCatalog();
+  const providers = Object.entries(CURATED_MODELS).map(([id, models]) => ({ id, models }));
   return json(res, 200, { providers }, { 'Cache-Control': 'no-store' });
-}
-
-async function getModelCatalog() {
-  if (modelCatalogCache?.expiresAt > Date.now()) return modelCatalogCache.providers;
-
-  const providers = await Promise.all(Object.entries(MODEL_CATALOGS).map(async ([provider, config]) => {
-    try {
-      const key = config.key && process.env[config.key];
-      if (config.key && !key) throw new Error(`Falta ${config.key}`);
-      const url = config.queryKey
-        ? `${config.url}?key=${encodeURIComponent(key)}`
-        : config.url;
-      const headers = config.key && !config.queryKey ? { Authorization: `Bearer ${key}` } : {};
-      const response = await fetch(url, { headers });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const models = normalizeProviderModels(provider, await response.json());
-      if (!models.length) throw new Error('catalogo vacio');
-      return { id: provider, models, source: 'live' };
-    } catch (error) {
-      console.warn(`[MODELS] ${provider}: ${error.message}`);
-      return { id: provider, models: FALLBACK_MODELS[provider], source: 'fallback' };
-    }
-  }));
-
-  modelCatalogCache = { providers, expiresAt: Date.now() + MODEL_CATALOG_TTL_MS };
-  return providers;
 }
 
 export function normalizeProviderModels(provider, payload) {
@@ -163,6 +123,9 @@ export async function handleChat(req, res) {
 
   try {
     const { provider, model, harness = 'kata', messages = [], images = [], intent, evaluationContext } = await readJson(req);
+    if (!CURATED_MODELS[provider]?.includes(model)) {
+      return json(res, 400, { error: `Modelo no permitido: ${provider}/${model}` });
+    }
 
     if (intent === 'lesson_evaluate') {
       let context;
@@ -422,12 +385,6 @@ async function chat(provider, model, messages) {
   const apiKey = config && process.env[config.key];
   if (!config) throw new Error(`Proveedor no soportado: ${provider}`);
   if (!apiKey) throw new Error(`Falta ${config.key}`);
-  if (provider === 'opencode' && !OPENCODE_FREE_MODELS.has(model)) {
-    const error = new Error(`Modelo de OpenCode no permitido: ${model}`);
-    error.status = 400;
-    throw error;
-  }
-
   const body = { model, messages, stream: false, ...modelOptions(provider, model) };
   const headers = {
     'Content-Type': 'application/json',

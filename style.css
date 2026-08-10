@@ -466,18 +466,112 @@ select {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-5);
   color: var(--color-text-muted);
   text-align: center;
   padding: var(--space-8);
   font-family: var(--font-mono);
-  animation: fadeIn 400ms ease-in
+  animation: fadeIn 700ms ease-in
 }
 
-.empty-state h2 {
-  font-size: var(--text-lg);
+.umbral-mark {
+  position: relative;
+  width: 108px;
+  height: 137px;
+  color: #4a4548;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.9));
+}
+
+.umbral-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.umbral-arch,
+.umbral-rib,
+.umbral-ornament,
+.umbral-threshold {
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.umbral-arch.outer {
+  stroke-width: 1.5;
+}
+
+.umbral-arch.inner,
+.umbral-rib,
+.umbral-ornament {
+  stroke-width: 0.8;
+  opacity: 0.58;
+}
+
+.umbral-door {
+  fill: #030303;
+  stroke: #242023;
+  stroke-width: 1;
+}
+
+.umbral-spire {
+  fill: #5f151b;
+  opacity: 0.78;
+}
+
+.umbral-threshold {
+  stroke-width: 0.8;
+  opacity: 0.75;
+}
+
+.umbral-sigil {
+  fill: #8f1d28;
+  filter: drop-shadow(0 0 5px rgba(143, 29, 40, 0.8));
+  animation: sigilPulse 4s ease-in-out infinite;
+}
+
+@keyframes sigilPulse {
+  0%, 100% { opacity: 0.38 }
+  50% { opacity: 0.9 }
+}
+
+.umbral-identity h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 2vw, 1.25rem);
   font-weight: 500;
-  color: var(--color-text)
+  letter-spacing: 0.48em;
+  text-indent: 0.48em;
+}
+
+.umbral-identity p {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}
+
+[data-theme="light"] .umbral-mark {
+  color: #756d71;
+  filter: drop-shadow(0 10px 20px rgba(45, 20, 24, 0.18));
+}
+
+[data-theme="light"] .umbral-door {
+  fill: #e9e5e3;
+}
+
+@media (max-width: 600px) {
+  .empty-state {
+    padding: var(--space-5);
+  }
+
+  .umbral-mark {
+    width: 94px;
+    height: 119px;
+  }
 }
 
 .empty-hints {
