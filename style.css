@@ -58,7 +58,8 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
-  padding: 0
+  padding: 0;
+  border-radius: 0 !important
 }
 
 html {
@@ -440,6 +441,7 @@ select {
 /* ─── MESSAGES ───────────────────────────────────────────── */
 .messages-wrap {
   flex: 1;
+  position: relative;
   overflow-y: auto;
   padding: var(--space-6) var(--space-5);
   display: flex;
@@ -472,6 +474,87 @@ select {
   padding: var(--space-8);
   font-family: var(--font-mono);
   animation: fadeIn 700ms ease-in
+}
+
+.visual-home {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  justify-content: center;
+  width: 100% !important;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+  border: 0;
+}
+
+.matrix-rain {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .72;
+}
+
+[data-theme="light"] .matrix-rain {
+  opacity: .44;
+}
+
+.mesh-character {
+  --eye-x: 0px;
+  --eye-y: 0px;
+  width: min(235px, 48vw);
+  color: #050505;
+  animation: meshFloat 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 24px 45px rgba(0, 0, 0, .55));
+}
+
+.mesh-character svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.mesh-eye {
+  fill: currentColor;
+  transform: translate(var(--eye-x), var(--eye-y));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: meshBlink 3.4s ease-in-out infinite;
+}
+
+.mesh-orb {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.orb-one { animation: meshOrbit 7s ease-in-out infinite alternate }
+.orb-two { animation: meshOrbit 9s ease-in-out -3s infinite alternate-reverse }
+
+@keyframes meshFloat {
+  0%, 100% { transform: translateY(0) scaleY(1) }
+  50% { transform: translateY(-9px) scaleY(1.035) }
+}
+
+@keyframes meshBlink {
+  0%, 44%, 50%, 100% { ry: 30px }
+  47% { ry: 3px }
+}
+
+@keyframes meshOrbit {
+  from { transform: translate(-18px, -12px) scale(.88) }
+  to { transform: translate(20px, 18px) scale(1.18) }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mesh-character,
+  .mesh-eye,
+  .mesh-orb { animation: none }
 }
 
 .umbral-mark {
@@ -1783,6 +1866,13 @@ select {
   width: min(900px, 100%);
   align-items: stretch;
   text-align: left
+}
+
+.empty-state.visual-home {
+  align-items: center;
+  text-align: center;
+  margin: 0;
+  padding: 0;
 }
 
 .empty-state>h2 {
