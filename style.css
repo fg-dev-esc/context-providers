@@ -503,7 +503,7 @@ select {
 .mesh-character {
   --eye-x: 0px;
   --eye-y: 0px;
-  width: min(235px, 48vw);
+  width: min(440px, 76vw, 56vh);
   color: #050505;
   animation: meshFloat 2.8s ease-in-out infinite;
   filter: drop-shadow(0 24px 45px rgba(0, 0, 0, .55));

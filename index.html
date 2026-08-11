@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Context Providers</title>
   <meta name="description" content="rría de modelos funcionales.">
-  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+  <link rel="icon" href="/favicon.svg?v=5" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -91,30 +91,7 @@
         <!-- Dynamic rain desactivada temporalmente.
         <canvas class="matrix-rain" id="matrixRain" aria-hidden="true"></canvas>
         -->
-        <img class="hero-image" src="/hero.png" alt="" aria-hidden="true">
-        <div class="mesh-character" id="meshCharacter" aria-hidden="true" hidden>
-          <svg viewBox="0 0 231 289" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <clipPath id="meshShape">
-                <path d="M230.809 115.385V249.411C230.809 269.923 214.985 287.282 194.495 288.411C184.544 288.949 175.364 285.718 168.26 280C159.746 273.154 147.769 273.461 139.178 280.23C132.638 285.384 124.381 288.462 115.379 288.462C106.377 288.462 98.145 285.384 91.606 280.23C82.912 273.385 70.935 273.385 62.242 280.23C55.753 285.334 47.598 288.411 38.725 288.462C17.413 288.615 0 270.667 0 249.359V115.385C0 51.667 51.676 0 115.404 0C179.134 0 230.809 51.667 230.809 115.385Z"/>
-              </clipPath>
-              <radialGradient id="meshPink" cx="0" cy="0" r="1" gradientTransform="translate(48 42) rotate(52) scale(245 225)">
-                <stop stop-color="#ffb3d9"/><stop offset=".38" stop-color="#87ceeb"/><stop offset=".72" stop-color="#4a90e2"/><stop offset="1" stop-color="#1a1a2e"/>
-              </radialGradient>
-              <filter id="meshNoise">
-                <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="7" result="noise"/>
-                <feBlend in="SourceGraphic" in2="noise" mode="soft-light"/>
-              </filter>
-            </defs>
-            <g clip-path="url(#meshShape)">
-              <rect width="231" height="289" fill="url(#meshPink)" filter="url(#meshNoise)"/>
-              <circle class="mesh-orb orb-one" cx="48" cy="55" r="86" fill="#ffb3d9" opacity=".42"/>
-              <circle class="mesh-orb orb-two" cx="184" cy="205" r="115" fill="#4a90e2" opacity=".48"/>
-            </g>
-            <ellipse class="mesh-eye left" cx="80" cy="120" rx="20" ry="30"/>
-            <ellipse class="mesh-eye right" cx="150" cy="120" rx="20" ry="30"/>
-          </svg>
-        </div>
+        <div id="meshCharacter" aria-hidden="true"></div>
         <!-- Dashboard educativo desactivado.
         <div class="learning-dashboard" id="learningDashboard"></div>
         -->
@@ -3093,6 +3070,52 @@
     }
 
     bootstrap();
+  </script>
+  <script type="module">
+    import React, { useEffect, useRef, useState } from 'https://esm.sh/react@19';
+    import { createRoot } from 'https://esm.sh/react-dom@19/client';
+    import { MeshGradient } from 'https://esm.sh/@paper-design/shaders-react?deps=react@19';
+
+    const h = React.createElement;
+    const shape = 'M230.809 115.385V249.411C230.809 269.923 214.985 287.282 194.495 288.411C184.544 288.949 175.364 285.718 168.26 280C159.746 273.154 147.769 273.461 139.178 280.23C132.638 285.384 124.381 288.462 115.379 288.462C106.377 288.462 98.145 285.384 91.606 280.23C82.912 273.385 70.935 273.385 62.242 280.23C55.753 285.334 47.598 288.411 38.725 288.462C17.413 288.615 0 270.667 0 249.359V115.385C0 51.667 51.676 0 115.404 0C179.134 0 230.809 51.667 230.809 115.385Z';
+
+    function AnimatedMeshCharacter() {
+      const svgRef = useRef(null);
+      const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
+
+      useEffect(() => {
+        const trackPointer = (event) => {
+          const rect = svgRef.current?.getBoundingClientRect();
+          if (!rect) return;
+          const x = Math.max(-8, Math.min(8, (event.clientX - rect.left - rect.width / 2) * .08));
+          const y = Math.max(-8, Math.min(8, (event.clientY - rect.top - rect.height / 2) * .08));
+          setEyeOffset({ x, y });
+        };
+        window.addEventListener('pointermove', trackPointer);
+        return () => window.removeEventListener('pointermove', trackPointer);
+      }, []);
+
+      return h('div', { className: 'mesh-character' },
+        h('svg', { ref: svgRef, viewBox: '0 0 231 289', xmlns: 'http://www.w3.org/2000/svg' },
+          h('defs', null,
+            h('clipPath', { id: 'meshShape' }, h('path', { d: shape }))
+          ),
+          h('foreignObject', { width: 231, height: 289, clipPath: 'url(#meshShape)' },
+            h('div', { style: { width: '100%', height: '100%' } },
+              h(MeshGradient, {
+                colors: ['#FFB3D9', '#87CEEB', '#4A90E2', '#2C3E50', '#1A1A2E'],
+                speed: 1,
+                style: { width: '100%', height: '100%' }
+              })
+            )
+          ),
+          h('ellipse', { className: 'mesh-eye', cx: 80 + eyeOffset.x, cy: 120 + eyeOffset.y, rx: 20, ry: 30 }),
+          h('ellipse', { className: 'mesh-eye', cx: 150 + eyeOffset.x, cy: 120 + eyeOffset.y, rx: 20, ry: 30 })
+        )
+      );
+    }
+
+    createRoot(document.getElementById('meshCharacter')).render(h(AnimatedMeshCharacter));
   </script>
 </body>
 
