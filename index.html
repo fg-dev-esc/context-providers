@@ -974,13 +974,13 @@
         const response = await fetch('/api/models', { cache: 'no-store' });
         if (!response.ok) throw new Error(`Catalogo respondio con ${response.status}`);
         const payload = await response.json();
+        const curatedOrder = new Map(MODELS.map((model, index) => [modelKey(model), index]));
         availableModels = payload.providers.flatMap(({ id, models }) => models.map(model => ({
           id: model,
           label: model,
           provider: id,
           tag: PROVIDERS.find(provider => provider.id === id)?.name || id,
-        })));
-        const curatedOrder = new Map(MODELS.map((model, index) => [modelKey(model), index]));
+        }))).filter(model => curatedOrder.has(modelKey(model)));
         availableModels.sort((left, right) => curatedOrder.get(modelKey(left)) - curatedOrder.get(modelKey(right)));
         if (!availableModels.some(model => modelKey(model) === modelKey(selectedModel))) {
           selectedModel = availableModels[0] || MODELS[0];
