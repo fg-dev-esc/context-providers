@@ -53,10 +53,10 @@
             </svg>
           </button>
           <div class="model-dropdown" id="modelDropdown">
-            <div class="dropdown-search">
+            <!-- <div class="dropdown-search">
               <input type="search" id="modelSearch" placeholder="Buscar modelo o proveedor..." autocomplete="off"
                 aria-label="Buscar modelo o proveedor">
-            </div>
+            </div> -->
             <div class="dropdown-body" id="dropdownBody"></div>
           </div>
         </div>
@@ -225,21 +225,20 @@
       { id: 'google', name: 'Google', color: '#8ab4f8' },
       { id: 'mistral', name: 'Mistral', color: '#ffab91' },
       { id: 'cohere', name: 'Cohere', color: '#a5d6a7' },
-      { id: 'cerebras', name: 'Cerebras', color: '#ffcc80' },
+      // { id: 'cerebras', name: 'Cerebras', color: '#ffcc80' },
     ];
 
     const MODELS = [
-      { id: 'gpt-oss-120b', label: 'gpt-oss-120b', provider: 'cerebras', tag: 'Cerebras' },
-      { id: 'gemini-flash-latest', label: 'gemini-flash-latest', provider: 'google', tag: 'Google' },
-      { id: 'deepseek-v4-flash-free', label: 'deepseek-v4-flash-free', provider: 'opencode', tag: 'OpenCode' },
-      { id: 'mimo-v2.5-free', label: 'mimo-v2.5-free', provider: 'opencode', tag: 'OpenCode' },
+      { id: 'openai/gpt-oss-120b', label: 'openai/gpt-oss-120b', provider: 'groq', tag: 'Groq' },
       { id: 'qwen/qwen3.6-27b', label: 'qwen/qwen3.6-27b', provider: 'groq', tag: 'Groq' },
-      { id: 'zai-glm-4.7', label: 'zai-glm-4.7', provider: 'cerebras', tag: 'Cerebras' },
-      // { id: 'mistral-small-latest', label: 'mistral-small-latest', provider: 'mistral', tag: 'Mistral' },
+      { id: 'gemini-flash-latest', label: 'gemini-flash-latest', provider: 'google', tag: 'Google' },
       { id: 'devstral-latest', label: 'devstral-latest', provider: 'mistral', tag: 'Mistral' },
-      // { id: 'command-a-reasoning-08-2025', label: 'command-a-reasoning-08-2025', provider: 'cohere', tag: 'Cohere' },
       { id: 'north-mini-code-1-0', label: 'north-mini-code-1-0', provider: 'cohere', tag: 'Cohere' },
-      { id: 'llama-3.1-8b-instant', label: 'llama-3.1-8b-instant', provider: 'groq', tag: 'Groq' },
+      // { id: 'deepseek-v4-flash-free', label: 'deepseek-v4-flash-free', provider: 'opencode', tag: 'OpenCode' },
+      // { id: 'mimo-v2.5-free', label: 'mimo-v2.5-free', provider: 'opencode', tag: 'OpenCode' },
+      // { id: 'zai-glm-4.7', label: 'zai-glm-4.7', provider: 'cerebras', tag: 'Cerebras' },
+      // { id: 'mistral-small-latest', label: 'mistral-small-latest', provider: 'mistral', tag: 'Mistral' },
+      // { id: 'command-a-reasoning-08-2025', label: 'command-a-reasoning-08-2025', provider: 'cohere', tag: 'Cohere' },
     ];
 
     const MAX_IMAGES = 5;
@@ -250,7 +249,7 @@
     const COMPLETED_LESSON_STATUSES = new Set(['mastered', 'completed_supported']);
     const FORK_LESSON_MESSAGE_TYPES = new Set(['challenge', 'attempt', 'evaluation', 'solution']);
 
-    let selectedModel = MODELS.find(m => m.id === 'gpt-oss-120b');
+    let selectedModel = MODELS.find(m => m.id === 'openai/gpt-oss-120b');
     let availableModels = [...MODELS];
     let messages = [];
     const undoneTurns = new Map();
@@ -276,7 +275,6 @@
     const modelIcon = document.getElementById('modelIcon');
     const modelLabel = document.getElementById('modelLabel');
     const modelDropdown = document.getElementById('modelDropdown');
-    const modelSearch = document.getElementById('modelSearch');
     const dropdownBody = document.getElementById('dropdownBody');
     const kataToggle = document.getElementById('kataToggle');
     const promptTree = document.getElementById('promptTree');
@@ -954,11 +952,7 @@
 
     function buildDropdown(focusKey) {
       dropdownBody.innerHTML = '';
-      const query = modelSearch.value.trim().toLowerCase();
-      const visible = availableModels.filter(model => {
-        const provider = PROVIDERS.find(item => item.id === model.provider);
-        return !query || `${model.id} ${model.label} ${provider?.name || ''}`.toLowerCase().includes(query);
-      });
+      const visible = availableModels;
       visible.forEach(model => dropdownBody.appendChild(createModelOption(model)));
       if (!visible.length) {
         const empty = document.createElement('div');
@@ -1003,10 +997,6 @@
     function openDropdown() {
       modelDropdown.classList.add('open');
       modelBtn.setAttribute('aria-expanded', 'true');
-      setTimeout(() => {
-        modelSearch.focus();
-        modelSearch.select();
-      }, 60);
     }
     function closeDropdown() {
       modelDropdown.classList.remove('open');
@@ -1018,13 +1008,7 @@
     });
     document.addEventListener('click', e => { if (!modelBtn.contains(e.target) && !modelDropdown.contains(e.target)) closeDropdown(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDropdown(); });
-    modelSearch.addEventListener('input', () => buildDropdown());
-    modelSearch.addEventListener('keydown', event => {
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        dropdownBody.querySelector('.model-option')?.focus();
-      }
-    });
+    // Buscador de modelos desactivado: el catalogo es lo bastante pequeno para mostrarlo completo.
 
     function updateKataToggle() {
       const isKata = selectedHarness === 'kata';

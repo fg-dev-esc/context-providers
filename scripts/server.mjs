@@ -12,7 +12,7 @@ const port = process.env.PORT || 5174;
 let sql;
 
 const PROVIDERS = {
-  cerebras: { url: 'https://api.cerebras.ai/v1/chat/completions', key: 'CEREBRAS_API_KEY' },
+  // cerebras: { url: 'https://api.cerebras.ai/v1/chat/completions', key: 'CEREBRAS_API_KEY' },
   groq: { url: 'https://api.groq.com/openai/v1/chat/completions', key: 'GROQ_API_KEY' },
   google: { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: 'GOOGLE_API_KEY' },
   mistral: { url: 'https://api.mistral.ai/v1/chat/completions', key: 'MISTRAL_API_KEY' },
@@ -33,12 +33,12 @@ export const OPENCODE_FREE_MODELS = new Set([
 ]);
 
 export const CURATED_MODELS = {
-  cerebras: ['gpt-oss-120b', 'zai-glm-4.7'],
+  // cerebras: ['gpt-oss-120b', 'zai-glm-4.7'],
   google: ['gemini-flash-latest'],
   mistral: ['mistral-small-latest', 'devstral-latest'],
   cohere: ['north-mini-code-1-0', 'command-a-reasoning-08-2025'],
   opencode: ['mimo-v2.5-free', 'deepseek-v4-flash-free', 'north-mini-code-free'],
-  groq: ['qwen/qwen3.6-27b', 'groq/compound-mini', 'llama-3.1-8b-instant', 'openai/gpt-oss-20b'],
+  groq: ['qwen/qwen3.6-27b', 'groq/compound-mini', 'llama-3.1-8b-instant', 'openai/gpt-oss-20b', 'openai/gpt-oss-120b'],
 };
 
 const IMAGE_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
@@ -435,9 +435,9 @@ async function chat(provider, model, messages) {
 
 // Opciones por modelo
 function modelOptions(provider, model) {
-  if (provider === 'cerebras' && model === 'gpt-oss-120b') {
-    return { max_completion_tokens: 32768, reasoning_effort: 'high', reasoning_format: 'hidden', temperature: 1, top_p: 1 };
-  }
+  // if (provider === 'cerebras' && model === 'gpt-oss-120b') {
+  //   return { max_completion_tokens: 32768, reasoning_effort: 'high', reasoning_format: 'hidden', temperature: 1, top_p: 1 };
+  // }
   if (provider === 'groq' && model === 'qwen/qwen3.6-27b') {
     return { max_completion_tokens: 4096, reasoning_effort: 'default', reasoning_format: 'hidden', temperature: 1, top_p: 0.95 };
   }
