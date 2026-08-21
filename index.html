@@ -107,10 +107,14 @@
       </div>
       <div class="lesson-controls" id="lessonControls" hidden></div>
       <div class="input-box">
+        <!-- Botón modo Kata / Normal desactivado.
         <button class="mode-toggle" id="kataToggle" type="button" aria-pressed="false"
           aria-label="Iniciar en modo Normal" title="Cambiar modo inicial (Ctrl+Alt+K)">
-          <i data-lucide="cpu" width="17" height="17"></i>
+          <i data-lucide="cpu" widthpero="17" height="17"></i>
         </button>
+        -->
+        <button class="mode-toggle" id="kataToggle" type="button" aria-pressed="false"
+          aria-label="Iniciar en modo Normal" title="Cambiar modo inicial (Ctrl+Alt+K)" hidden></button>
         <button class="lesson-tutor-trigger" id="lessonTutorBtn" type="button"
           aria-controls="lessonTutorPanel" aria-expanded="false" aria-label="Preguntar" title="Preguntar (Ctrl+Alt+T)" hidden>
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1012,7 +1016,7 @@
 
     function updateKataToggle() {
       const isKata = selectedHarness === 'kata';
-      kataToggle.hidden = Boolean(currentLessonRunId);
+      kataToggle.hidden = true;
       kataToggle.disabled = messages.length > 0;
       kataToggle.classList.toggle('active', isKata);
       kataToggle.setAttribute('aria-pressed', String(isKata));
